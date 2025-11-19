@@ -14,3 +14,12 @@ export default factories.createCoreController('api::tag.tag', ({ strapi }) => ({
   }
 }));
 
+// SNIPPET FOR JAN
+// const existing = await strapi.db
+//         .query("api::user-question.user-question")
+//         .findOne({
+//           where: {
+//             users_permissions_user: userId,
+//             questions: questions,
+//           },
+//         });
