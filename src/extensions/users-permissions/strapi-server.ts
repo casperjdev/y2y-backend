@@ -1,22 +1,23 @@
-// !TODO - fix 500 res code when trying to /api/user/me
-
 module.exports = (plugin) => {
   plugin.controllers.user.updateMe = async (ctx) => {
     if (!ctx.state.user || !ctx.state.user.id) {
-      return (ctx.response.status = 401);
+      return (ctx.status = 401);
     }
 
-    console.log(JSON.stringify(ctx, null, 2))
-
-    await strapi
-      .query("plugin::users-permissions.user")
-      .update({
-        where: { id: ctx.state.user.id },
-        data: ctx.request.body.data,
-      })
-      .then((res) => {
-        ctx.response.status = 200;
-      });
+    try {
+      const userUpdateRes = await strapi.db
+        .query("plugin::users-permissions.user")
+        .update({
+          where: { id: ctx.state.user.id },
+          data: ctx.request.body,
+        })
+        .then((res) => {
+          ctx.body = "OK";
+          ctx.status = 200;
+        });
+    } catch (err) {
+      ctx.body = err
+    }
   };
 
   plugin.controllers.user.getCourses = async (ctx) => {
