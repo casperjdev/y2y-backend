@@ -2,7 +2,7 @@ export default {
   routes: [
     {
       method: "GET",
-      path: "/courses/search/:q",
+      path: "/courses/search",
       handler: "course.search"
     }
   ]

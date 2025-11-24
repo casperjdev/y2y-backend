@@ -8,7 +8,7 @@ const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::course.course', ({ strapi }) => ({
   async search(ctx) {
-    const { q } = ctx.params;
+    const { q } = ctx.query;
 
     if (!q) {
       return ctx.badRequest('Search query is required');
