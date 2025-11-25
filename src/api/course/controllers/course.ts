@@ -87,4 +87,37 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
       ctx.status = 500;
     }
   },
+  async getCourse(ctx){
+      const { id } = ctx.query
+
+      if (!id) {
+        return ctx.badRequest("Missing id");
+      }
+
+      try {
+        const course = await strapi.db
+        .query("api::course.course")
+        .findOne({
+          where: {
+            id: {
+              $eq: id
+            },
+            publishedAt: {
+              $notNull: true
+            }
+          },
+          populate: true,
+        })
+
+        if(!course){
+          return ctx.notFound("Course not found")
+        }
+        return {
+          data: course
+        }
+      } catch (error) {
+        console.error(error)
+        return ctx.internalServerError("Something went wrong")
+      }
+  },
 }));
