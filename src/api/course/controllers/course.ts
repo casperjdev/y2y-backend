@@ -21,7 +21,7 @@ module.exports = createCoreController('api::course.course', ({ strapi }) => ({
 
       const cleanQuery = q.trim();
       const safeQuery = cleanQuery.substring(0, 255);
-      const distanceThreshold = 50; 
+      const distanceThreshold = 15; 
 
       const results = await knex(tableName)
         .select('document_id') 

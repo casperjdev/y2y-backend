@@ -74,6 +74,54 @@ module.exports = (plugin) => {
       })
       ctx.body = { courses }
   }
+  plugin.controllers.user.getRecCourses = async (ctx) => {
+    if (!ctx.state.user || !ctx.state.user.id) {
+      return (ctx.response.status = 401);
+    }
+    const { id } = ctx.params
+    const user = await strapi.db
+    .query("plugin::users-permissions.user")
+    .findOne({
+      where: {
+        id: {
+          $eq: id
+        }
+      },
+      populate: {
+        tags: {
+          where: {
+            publishedAt: {
+              $notNull: true
+            }
+          }
+        }
+      }
+    })
+    if(!user){
+      return ctx.notFound("No tags found on this user")
+    }
+    const userTags = user.tags.map(tag => tag.label)
+    const recommendedCourses = await strapi.db
+    .query("api::course.course")
+    .findMany({
+      where: {
+        tags: {
+          label: {
+            $in: userTags
+          }
+        },
+        publishedAt: {
+          $notNull: true
+        }
+      },
+      populate: true
+    })
+    console.log(recommendedCourses)
+    if(recommendedCourses.length===0){
+      return { data: [], message: "No courses with similar tags found" }
+    }
+    return {data: recommendedCourses}
+  }
 
     plugin.routes["content-api"].routes.push({
     method: "POST",
@@ -99,6 +147,16 @@ module.exports = (plugin) => {
     method: "GET",
     path: "/user/search",
     handler: "user.search",
+    config: {
+      prefix: "",
+      policies: [],
+    },
+  })
+
+  plugin.routes["content-api"].routes.push({
+    method: "GET",
+    path: "/user/:id/recommended",
+    handler: "user.getRecCourses",
     config: {
       prefix: "",
       policies: [],
